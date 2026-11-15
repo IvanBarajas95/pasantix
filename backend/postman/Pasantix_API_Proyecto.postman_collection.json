@@ -1,0 +1,2237 @@
+{
+  "info": {
+    "_postman_id": "6073dce5-4ada-4671-8df9-8e0a00bfbf97",
+    "name": "Pasantix - API del proyecto (AA5)",
+    "description": "Pruebas de la API REST de Pasantix (Node.js + Express + MySQL). Evidencia GA7-220501096-AA5-EV04. Autor: Iván Antonio Ovalle Barajas.\nEjecutar en orden con el Collection Runner.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "0. Salud",
+      "item": [
+        {
+          "name": "Verificar API",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código de estado 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Responde JSON en menos de 2 s\", () => { pm.response.to.be.json; pm.expect(pm.response.responseTime).to.be.below(2000); });",
+                  "pm.test(\"Mensaje: funcionando\", () => pm.expect(pm.response.json().mensaje).to.include(\"funcionando\"));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "1. Autenticación",
+      "item": [
+        {
+          "name": "Registro aprendiz nuevo",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/registro",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "registro"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rol\": \"APRENDIZ\",\n  \"nombres\": \"Mateo\",\n  \"apellidos\": \"Ríos Cárdenas\",\n  \"documento\": \"{{documentoNuevo}}\",\n  \"programa\": \"Análisis y Desarrollo de Software\",\n  \"ciudad\": \"Bogotá\",\n  \"correo\": \"{{correoNuevo}}\",\n  \"contrasena\": \"Segura2026*\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set(\"correoNuevo\", \"mateo\" + Date.now() + \"@soy.sena.edu.co\");",
+                  "pm.collectionVariables.set(\"documentoNuevo\", String(Date.now()).slice(-10));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código de estado 201\", () => pm.response.to.have.status(201));",
+                  "pm.test(\"Responde JSON en menos de 2 s\", () => { pm.response.to.be.json; pm.expect(pm.response.responseTime).to.be.below(2000); });",
+                  "pm.test(\"Mensaje: registrado correctamente\", () => pm.expect(pm.response.json().mensaje).to.include(\"registrado correctamente\"));",
+                  "pm.test(\"Rol APRENDIZ\", () => pm.expect(pm.response.json().datos.rol).to.eql(\"APRENDIZ\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Registro empresa nueva",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/registro",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "registro"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rol\": \"EMPRESA\",\n  \"razon_social\": \"Innovación Digital Kennedy S.A.S.\",\n  \"nit\": \"{{nitRegistro}}\",\n  \"ciudad\": \"Bogotá\",\n  \"correo\": \"{{correoEmpresa}}\",\n  \"contrasena\": \"Segura2026*\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set(\"correoEmpresa\", \"talento\" + Date.now() + \"@empresa.co\");",
+                  "pm.collectionVariables.set(\"nitRegistro\", String(Math.floor(900000000 + Math.random() * 99999999)) + \"-\" + Math.floor(Math.random() * 10));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código de estado 201\", () => pm.response.to.have.status(201));",
+                  "pm.test(\"Responde JSON en menos de 2 s\", () => { pm.response.to.be.json; pm.expect(pm.response.responseTime).to.be.below(2000); });",
+                  "pm.test(\"Mensaje: registrado correctamente\", () => pm.expect(pm.response.json().mensaje).to.include(\"registrado correctamente\"));",
+                  "pm.test(\"Rol EMPRESA\", () => pm.expect(pm.response.json().datos.rol).to.eql(\"EMPRESA\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Registro aprendiz con datos inválidos (error)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/registro",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "registro"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rol\": \"APRENDIZ\",\n  \"nombres\": \"J0hn\",\n  \"apellidos\": \"\",\n  \"documento\": \"12ab\",\n  \"programa\": \"\",\n  \"ciudad\": \"B0g0t4\",\n  \"correo\": \"correo-malo\",\n  \"contrasena\": \"123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código de estado 400\", () => pm.response.to.have.status(400));",
+                  "pm.test(\"Responde JSON en menos de 2 s\", () => { pm.response.to.be.json; pm.expect(pm.response.responseTime).to.be.below(2000); });",
+                  "pm.test(\"Mensaje: Datos de registro inválidos\", () => pm.expect(pm.response.json().mensaje).to.include(\"Datos de registro inválidos\"));",
+                  "pm.test(\"Valida 7 campos (texto, números, caracteres especiales)\", () => pm.expect(pm.response.json().detalles).to.have.lengthOf(7));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Registro con rol inexistente (error)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/registro",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "registro"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rol\": \"OTRO\",\n  \"correo\": \"x@y.co\",\n  \"contrasena\": \"Segura2026*\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código de estado 400\", () => pm.response.to.have.status(400));",
+                  "pm.test(\"Responde JSON en menos de 2 s\", () => { pm.response.to.be.json; pm.expect(pm.response.responseTime).to.be.below(2000); });",
+                  "pm.test(\"Mensaje: Datos de registro inválidos\", () => pm.expect(pm.response.json().mensaje).to.include(\"Datos de registro inválidos\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Registro correo duplicado (error)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/registro",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "registro"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rol\": \"APRENDIZ\",\n  \"nombres\": \"Mateo\",\n  \"apellidos\": \"Ríos Cárdenas\",\n  \"documento\": \"{{documentoNuevo}}\",\n  \"programa\": \"Análisis y Desarrollo de Software\",\n  \"ciudad\": \"Bogotá\",\n  \"correo\": \"{{correoNuevo}}\",\n  \"contrasena\": \"Segura2026*\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código de estado 409\", () => pm.response.to.have.status(409));",
+                  "pm.test(\"Responde JSON en menos de 2 s\", () => { pm.response.to.be.json; pm.expect(pm.response.responseTime).to.be.below(2000); });",
+                  "pm.test(\"Mensaje: ya está registrado\", () => pm.expect(pm.response.json().mensaje).to.include(\"ya está registrado\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login aprendiz nuevo (guarda token)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"correo\": \"{{correoNuevo}}\",\n  \"contrasena\": \"Segura2026*\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código de estado 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Responde JSON en menos de 2 s\", () => { pm.response.to.be.json; pm.expect(pm.response.responseTime).to.be.below(2000); });",
+                  "pm.test(\"Mensaje: Autenticación satisfactoria\", () => pm.expect(pm.response.json().mensaje).to.include(\"Autenticación satisfactoria\"));",
+                  "pm.collectionVariables.set(\"tokenAprendiz\", pm.response.json().datos.token);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login empresa (guarda token)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"correo\": \"talento@andinasti.co\",\n  \"contrasena\": \"Pasantix2026*\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código de estado 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Responde JSON en menos de 2 s\", () => { pm.response.to.be.json; pm.expect(pm.response.responseTime).to.be.below(2000); });",
+                  "pm.test(\"Mensaje: Autenticación satisfactoria\", () => pm.expect(pm.response.json().mensaje).to.include(\"Autenticación satisfactoria\"));",
+                  "pm.test(\"Devuelve un token JWT\", () => pm.expect(pm.response.json().datos.token).to.be.a(\"string\"));",
+                  "pm.collectionVariables.set(\"tokenEmpresa\", pm.response.json().datos.token);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login admin (guarda token)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"correo\": \"admin@pasantix.co\",\n  \"contrasena\": \"Pasantix2026*\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código de estado 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Responde JSON en menos de 2 s\", () => { pm.response.to.be.json; pm.expect(pm.response.responseTime).to.be.below(2000); });",
+                  "pm.test(\"Mensaje: Autenticación satisfactoria\", () => pm.expect(pm.response.json().mensaje).to.include(\"Autenticación satisfactoria\"));",
+                  "pm.test(\"Devuelve un token JWT\", () => pm.expect(pm.response.json().datos.token).to.be.a(\"string\"));",
+                  "pm.collectionVariables.set(\"tokenAdmin\", pm.response.json().datos.token);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login contraseña incorrecta (error)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"correo\": \"talento@andinasti.co\",\n  \"contrasena\": \"Incorrecta1*\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código de estado 401\", () => pm.response.to.have.status(401));",
+                  "pm.test(\"Responde JSON en menos de 2 s\", () => { pm.response.to.be.json; pm.expect(pm.response.responseTime).to.be.below(2000); });",
+                  "pm.test(\"Mensaje: Error en la autenticación\", () => pm.expect(pm.response.json().mensaje).to.include(\"Error en la autenticación\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Perfil del usuario (token)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/perfil",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "perfil"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAprendiz}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código de estado 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Responde JSON en menos de 2 s\", () => { pm.response.to.be.json; pm.expect(pm.response.responseTime).to.be.below(2000); });",
+                  "pm.test(\"Perfil del aprendiz con documento y ciudad\", () => { const d = pm.response.json().datos; pm.expect(d.rol).to.eql(\"APRENDIZ\"); pm.expect(d.perfil.documento).to.eql(pm.collectionVariables.get(\"documentoNuevo\")); pm.expect(d.perfil.ciudad).to.eql(\"Bogotá\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Perfil sin token (error)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/perfil",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "perfil"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código de estado 401\", () => pm.response.to.have.status(401));",
+                  "pm.test(\"Responde JSON en menos de 2 s\", () => { pm.response.to.be.json; pm.expect(pm.response.responseTime).to.be.below(2000); });",
+                  "pm.test(\"Mensaje: falta el token\", () => pm.expect(pm.response.json().mensaje).to.include(\"falta el token\"));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "2. Ofertas",
+      "item": [
+        {
+          "name": "Listar ofertas",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/ofertas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "ofertas"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código de estado 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Responde JSON en menos de 2 s\", () => { pm.response.to.be.json; pm.expect(pm.response.responseTime).to.be.below(2000); });",
+                  "pm.test(\"Devuelve un arreglo\", () => pm.expect(pm.response.json().datos).to.be.an(\"array\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Filtrar ofertas abiertas y remotas",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/ofertas?estado=ABIERTA&modalidad=REMOTA",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "ofertas"
+              ],
+              "query": [
+                {
+                  "key": "estado",
+                  "value": "ABIERTA"
+                },
+                {
+                  "key": "modalidad",
+                  "value": "REMOTA"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código de estado 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Responde JSON en menos de 2 s\", () => { pm.response.to.be.json; pm.expect(pm.response.responseTime).to.be.below(2000); });",
+                  "pm.test(\"Todas cumplen el filtro\", () => pm.response.json().datos.forEach(o => { pm.expect(o.estado).to.eql(\"ABIERTA\"); pm.expect(o.modalidad).to.eql(\"REMOTA\"); }));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Obtener oferta por id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/ofertas/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "ofertas",
+                "1"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código de estado 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Responde JSON en menos de 2 s\", () => { pm.response.to.be.json; pm.expect(pm.response.responseTime).to.be.below(2000); });",
+                  "pm.test(\"id_oferta = 1\", () => pm.expect(pm.response.json().datos.id_oferta).to.eql(1));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Oferta inexistente (error)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/ofertas/99999",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "ofertas",
+                "99999"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código de estado 404\", () => pm.response.to.have.status(404));",
+                  "pm.test(\"Responde JSON en menos de 2 s\", () => { pm.response.to.be.json; pm.expect(pm.response.responseTime).to.be.below(2000); });",
+                  "pm.test(\"Mensaje: Oferta no encontrada\", () => pm.expect(pm.response.json().mensaje).to.include(\"Oferta no encontrada\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Id no numérico (error)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/ofertas/abc",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "ofertas",
+                "abc"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código de estado 400\", () => pm.response.to.have.status(400));",
+                  "pm.test(\"Responde JSON en menos de 2 s\", () => { pm.response.to.be.json; pm.expect(pm.response.responseTime).to.be.below(2000); });",
+                  "pm.test(\"Mensaje: número entero positivo\", () => pm.expect(pm.response.json().mensaje).to.include(\"número entero positivo\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Crear oferta sin token (error)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/ofertas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "ofertas"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"titulo\": \"Aprendiz de Desarrollo Móvil\",\n  \"descripcion\": \"Apoyo en el desarrollo de aplicaciones móviles.\",\n  \"area\": \"Desarrollo de software\",\n  \"modalidad\": \"REMOTA\",\n  \"cupos\": 2,\n  \"fecha_publicacion\": \"2026-10-23\",\n  \"fecha_cierre\": \"2026-12-20\",\n  \"estado\": \"ABIERTA\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código de estado 401\", () => pm.response.to.have.status(401));",
+                  "pm.test(\"Responde JSON en menos de 2 s\", () => { pm.response.to.be.json; pm.expect(pm.response.responseTime).to.be.below(2000); });",
+                  "pm.test(\"Mensaje: falta el token\", () => pm.expect(pm.response.json().mensaje).to.include(\"falta el token\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Crear oferta como aprendiz (error)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/ofertas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "ofertas"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"titulo\": \"Aprendiz de Desarrollo Móvil\",\n  \"descripcion\": \"Apoyo en el desarrollo de aplicaciones móviles.\",\n  \"area\": \"Desarrollo de software\",\n  \"modalidad\": \"REMOTA\",\n  \"cupos\": 2,\n  \"fecha_publicacion\": \"2026-10-23\",\n  \"fecha_cierre\": \"2026-12-20\",\n  \"estado\": \"ABIERTA\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAprendiz}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código de estado 403\", () => pm.response.to.have.status(403));",
+                  "pm.test(\"Responde JSON en menos de 2 s\", () => { pm.response.to.be.json; pm.expect(pm.response.responseTime).to.be.below(2000); });",
+                  "pm.test(\"Mensaje: No tiene permisos\", () => pm.expect(pm.response.json().mensaje).to.include(\"No tiene permisos\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Crear oferta con datos inválidos (error)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/ofertas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "ofertas"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"titulo\": \"ab\",\n  \"descripcion\": \"corta\",\n  \"area\": \"\",\n  \"modalidad\": \"OTRA\",\n  \"cupos\": 0,\n  \"fecha_publicacion\": \"2026-13-40\",\n  \"fecha_cierre\": \"fecha\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenEmpresa}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código de estado 400\", () => pm.response.to.have.status(400));",
+                  "pm.test(\"Responde JSON en menos de 2 s\", () => { pm.response.to.be.json; pm.expect(pm.response.responseTime).to.be.below(2000); });",
+                  "pm.test(\"Mensaje: Datos de oferta inválidos\", () => pm.expect(pm.response.json().mensaje).to.include(\"Datos de oferta inválidos\"));",
+                  "pm.test(\"Valida textos, números y fechas\", () => pm.expect(pm.response.json().detalles.length).to.be.at.least(6));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Crear oferta (empresa)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/ofertas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "ofertas"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"titulo\": \"Aprendiz de Desarrollo Móvil\",\n  \"descripcion\": \"Apoyo en el desarrollo de aplicaciones móviles.\",\n  \"area\": \"Desarrollo de software\",\n  \"modalidad\": \"REMOTA\",\n  \"cupos\": 2,\n  \"fecha_publicacion\": \"2026-10-23\",\n  \"fecha_cierre\": \"2026-12-20\",\n  \"estado\": \"ABIERTA\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenEmpresa}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código de estado 201\", () => pm.response.to.have.status(201));",
+                  "pm.test(\"Responde JSON en menos de 2 s\", () => { pm.response.to.be.json; pm.expect(pm.response.responseTime).to.be.below(2000); });",
+                  "pm.test(\"Mensaje: creada correctamente\", () => pm.expect(pm.response.json().mensaje).to.include(\"creada correctamente\"));",
+                  "pm.collectionVariables.set(\"idOferta\", pm.response.json().datos.id_oferta);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Actualizar oferta",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/ofertas/{{idOferta}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "ofertas",
+                "{{idOferta}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"titulo\": \"Aprendiz de Desarrollo Móvil (actualizada)\",\n  \"descripcion\": \"Apoyo en el desarrollo de aplicaciones móviles.\",\n  \"area\": \"Desarrollo de software\",\n  \"modalidad\": \"HIBRIDA\",\n  \"cupos\": 3,\n  \"fecha_publicacion\": \"2026-10-23\",\n  \"fecha_cierre\": \"2026-12-20\",\n  \"estado\": \"ABIERTA\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenEmpresa}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código de estado 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Responde JSON en menos de 2 s\", () => { pm.response.to.be.json; pm.expect(pm.response.responseTime).to.be.below(2000); });",
+                  "pm.test(\"Mensaje: actualizada correctamente\", () => pm.expect(pm.response.json().mensaje).to.include(\"actualizada correctamente\"));",
+                  "pm.test(\"Cupos actualizados a 3\", () => pm.expect(pm.response.json().datos.cupos).to.eql(3));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Editar oferta de otra empresa (error)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/ofertas/3",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "ofertas",
+                "3"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"titulo\": \"Aprendiz de Desarrollo Móvil (actualizada)\",\n  \"descripcion\": \"Apoyo en el desarrollo de aplicaciones móviles.\",\n  \"area\": \"Desarrollo de software\",\n  \"modalidad\": \"HIBRIDA\",\n  \"cupos\": 3,\n  \"fecha_publicacion\": \"2026-10-23\",\n  \"fecha_cierre\": \"2026-12-20\",\n  \"estado\": \"ABIERTA\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenEmpresa}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código de estado 403\", () => pm.response.to.have.status(403));",
+                  "pm.test(\"Responde JSON en menos de 2 s\", () => { pm.response.to.be.json; pm.expect(pm.response.responseTime).to.be.below(2000); });",
+                  "pm.test(\"Mensaje: Solo puede modificar\", () => pm.expect(pm.response.json().mensaje).to.include(\"Solo puede modificar\"));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "3. Postulaciones",
+      "item": [
+        {
+          "name": "Postularse a la oferta (aprendiz)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/postulaciones",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "postulaciones"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id_oferta\": \"{{idOferta}}\",\n  \"comentario\": \"Tengo conocimientos en React Native.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAprendiz}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código de estado 201\", () => pm.response.to.have.status(201));",
+                  "pm.test(\"Responde JSON en menos de 2 s\", () => { pm.response.to.be.json; pm.expect(pm.response.responseTime).to.be.below(2000); });",
+                  "pm.test(\"Mensaje: registrada correctamente\", () => pm.expect(pm.response.json().mensaje).to.include(\"registrada correctamente\"));",
+                  "pm.collectionVariables.set(\"idPostulacion\", pm.response.json().datos.id_postulacion);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Postulación duplicada (error)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/postulaciones",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "postulaciones"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id_oferta\": \"{{idOferta}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAprendiz}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código de estado 409\", () => pm.response.to.have.status(409));",
+                  "pm.test(\"Responde JSON en menos de 2 s\", () => { pm.response.to.be.json; pm.expect(pm.response.responseTime).to.be.below(2000); });",
+                  "pm.test(\"Mensaje: duplicado\", () => pm.expect(pm.response.json().mensaje).to.include(\"duplicado\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Postularse a oferta cerrada (error)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/postulaciones",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "postulaciones"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id_oferta\": 4\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAprendiz}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código de estado 400\", () => pm.response.to.have.status(400));",
+                  "pm.test(\"Responde JSON en menos de 2 s\", () => { pm.response.to.be.json; pm.expect(pm.response.responseTime).to.be.below(2000); });",
+                  "pm.test(\"Mensaje: cerrada\", () => pm.expect(pm.response.json().mensaje).to.include(\"cerrada\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Mis postulaciones (aprendiz)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/postulaciones",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "postulaciones"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAprendiz}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código de estado 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Responde JSON en menos de 2 s\", () => { pm.response.to.be.json; pm.expect(pm.response.responseTime).to.be.below(2000); });",
+                  "pm.test(\"Solo ve sus postulaciones\", () => pm.expect(pm.response.json().total).to.eql(1));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Aceptar postulación (empresa)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/postulaciones/{{idPostulacion}}/estado",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "postulaciones",
+                "{{idPostulacion}}",
+                "estado"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estado\": \"ACEPTADA\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenEmpresa}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código de estado 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Responde JSON en menos de 2 s\", () => { pm.response.to.be.json; pm.expect(pm.response.responseTime).to.be.below(2000); });",
+                  "pm.test(\"Mensaje: ACEPTADA\", () => pm.expect(pm.response.json().mensaje).to.include(\"ACEPTADA\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Estado inválido (error)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/postulaciones/{{idPostulacion}}/estado",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "postulaciones",
+                "{{idPostulacion}}",
+                "estado"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estado\": \"TAL_VEZ\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenEmpresa}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código de estado 400\", () => pm.response.to.have.status(400));",
+                  "pm.test(\"Responde JSON en menos de 2 s\", () => { pm.response.to.be.json; pm.expect(pm.response.responseTime).to.be.below(2000); });",
+                  "pm.test(\"Mensaje: El estado debe ser\", () => pm.expect(pm.response.json().mensaje).to.include(\"El estado debe ser\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Eliminar postulación",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/postulaciones/{{idPostulacion}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "postulaciones",
+                "{{idPostulacion}}"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAprendiz}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código de estado 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Responde JSON en menos de 2 s\", () => { pm.response.to.be.json; pm.expect(pm.response.responseTime).to.be.below(2000); });",
+                  "pm.test(\"Mensaje: eliminada correctamente\", () => pm.expect(pm.response.json().mensaje).to.include(\"eliminada correctamente\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Eliminar oferta creada",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/ofertas/{{idOferta}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "ofertas",
+                "{{idOferta}}"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenEmpresa}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código de estado 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Responde JSON en menos de 2 s\", () => { pm.response.to.be.json; pm.expect(pm.response.responseTime).to.be.below(2000); });",
+                  "pm.test(\"Mensaje: eliminada correctamente\", () => pm.expect(pm.response.json().mensaje).to.include(\"eliminada correctamente\"));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "4. Empresas (admin)",
+      "item": [
+        {
+          "name": "Listar empresas",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/empresas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "empresas"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código de estado 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Responde JSON en menos de 2 s\", () => { pm.response.to.be.json; pm.expect(pm.response.responseTime).to.be.below(2000); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Crear empresa",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/empresas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "empresas"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nit\": \"{{nitNuevo}}\",\n  \"razon_social\": \"Innovación Kennedy S.A.S.\",\n  \"sector\": \"Tecnología\",\n  \"correo\": \"contacto@innovak.co\",\n  \"telefono\": \"6014443322\",\n  \"ciudad\": \"Bogotá\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdmin}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const nit = String(Math.floor(900000000 + Math.random() * 99999999)) + \"-\" + Math.floor(Math.random() * 10);",
+                  "pm.collectionVariables.set(\"nitNuevo\", nit);"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código de estado 201\", () => pm.response.to.have.status(201));",
+                  "pm.test(\"Responde JSON en menos de 2 s\", () => { pm.response.to.be.json; pm.expect(pm.response.responseTime).to.be.below(2000); });",
+                  "pm.test(\"Mensaje: creada correctamente\", () => pm.expect(pm.response.json().mensaje).to.include(\"creada correctamente\"));",
+                  "pm.collectionVariables.set(\"idEmpresa\", pm.response.json().datos.id_empresa);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Crear empresa NIT duplicado (error)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/empresas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "empresas"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nit\": \"{{nitNuevo}}\",\n  \"razon_social\": \"Innovación Kennedy S.A.S.\",\n  \"sector\": \"Tecnología\",\n  \"correo\": \"contacto@innovak.co\",\n  \"telefono\": \"6014443322\",\n  \"ciudad\": \"Bogotá\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdmin}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código de estado 409\", () => pm.response.to.have.status(409));",
+                  "pm.test(\"Responde JSON en menos de 2 s\", () => { pm.response.to.be.json; pm.expect(pm.response.responseTime).to.be.below(2000); });",
+                  "pm.test(\"Mensaje: duplicado\", () => pm.expect(pm.response.json().mensaje).to.include(\"duplicado\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Crear empresa datos inválidos (error)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/empresas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "empresas"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nit\": \"123\",\n  \"razon_social\": \"\",\n  \"correo\": \"x@\",\n  \"telefono\": \"12ab\",\n  \"ciudad\": \"B0g0t4\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdmin}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código de estado 400\", () => pm.response.to.have.status(400));",
+                  "pm.test(\"Responde JSON en menos de 2 s\", () => { pm.response.to.be.json; pm.expect(pm.response.responseTime).to.be.below(2000); });",
+                  "pm.test(\"Mensaje: Datos de empresa inválidos\", () => pm.expect(pm.response.json().mensaje).to.include(\"Datos de empresa inválidos\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Crear empresa con rol empresa (error)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/empresas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "empresas"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nit\": \"{{nitNuevo}}\",\n  \"razon_social\": \"Innovación Kennedy S.A.S.\",\n  \"sector\": \"Tecnología\",\n  \"correo\": \"contacto@innovak.co\",\n  \"telefono\": \"6014443322\",\n  \"ciudad\": \"Bogotá\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenEmpresa}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código de estado 403\", () => pm.response.to.have.status(403));",
+                  "pm.test(\"Responde JSON en menos de 2 s\", () => { pm.response.to.be.json; pm.expect(pm.response.responseTime).to.be.below(2000); });",
+                  "pm.test(\"Mensaje: No tiene permisos\", () => pm.expect(pm.response.json().mensaje).to.include(\"No tiene permisos\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Actualizar empresa",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/empresas/{{idEmpresa}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "empresas",
+                "{{idEmpresa}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nit\": \"{{nitNuevo}}\",\n  \"razon_social\": \"Innovación Kennedy Digital S.A.S.\",\n  \"sector\": \"Tecnología\",\n  \"correo\": \"contacto@innovak.co\",\n  \"telefono\": \"6014443322\",\n  \"ciudad\": \"Bogotá\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdmin}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código de estado 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Responde JSON en menos de 2 s\", () => { pm.response.to.be.json; pm.expect(pm.response.responseTime).to.be.below(2000); });",
+                  "pm.test(\"Mensaje: actualizada correctamente\", () => pm.expect(pm.response.json().mensaje).to.include(\"actualizada correctamente\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Eliminar empresa",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/empresas/{{idEmpresa}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "empresas",
+                "{{idEmpresa}}"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdmin}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código de estado 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Responde JSON en menos de 2 s\", () => { pm.response.to.be.json; pm.expect(pm.response.responseTime).to.be.below(2000); });",
+                  "pm.test(\"Mensaje: eliminada correctamente\", () => pm.expect(pm.response.json().mensaje).to.include(\"eliminada correctamente\"));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "5. Aprendices (admin)",
+      "item": [
+        {
+          "name": "Listar aprendices",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/aprendices",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "aprendices"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdmin}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código de estado 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Responde JSON en menos de 2 s\", () => { pm.response.to.be.json; pm.expect(pm.response.responseTime).to.be.below(2000); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Listar aprendices como aprendiz (error)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/aprendices",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "aprendices"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAprendiz}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código de estado 403\", () => pm.response.to.have.status(403));",
+                  "pm.test(\"Responde JSON en menos de 2 s\", () => { pm.response.to.be.json; pm.expect(pm.response.responseTime).to.be.below(2000); });",
+                  "pm.test(\"Mensaje: No tiene permisos\", () => pm.expect(pm.response.json().mensaje).to.include(\"No tiene permisos\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Crear aprendiz",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/aprendices",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "aprendices"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombres\": \"Mateo\",\n  \"apellidos\": \"Ríos Cárdenas\",\n  \"documento\": \"{{documentoAprendiz}}\",\n  \"correo\": \"{{correoAprendiz}}\",\n  \"telefono\": \"3015556677\",\n  \"programa\": \"Análisis y Desarrollo de Software\",\n  \"ficha\": \"3336169\",\n  \"ciudad\": \"Bogotá\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdmin}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set(\"correoAprendiz\", \"mateo.rios\" + Date.now() + \"@soy.sena.edu.co\");",
+                  "pm.collectionVariables.set(\"documentoAprendiz\", String(Date.now() + 7).slice(-9));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código de estado 201\", () => pm.response.to.have.status(201));",
+                  "pm.test(\"Responde JSON en menos de 2 s\", () => { pm.response.to.be.json; pm.expect(pm.response.responseTime).to.be.below(2000); });",
+                  "pm.test(\"Mensaje: creado correctamente\", () => pm.expect(pm.response.json().mensaje).to.include(\"creado correctamente\"));",
+                  "pm.collectionVariables.set(\"idAprendiz\", pm.response.json().datos.id_aprendiz);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Crear aprendiz datos inválidos (error)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/aprendices",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "aprendices"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombres\": \"M4teo\",\n  \"apellidos\": \"\",\n  \"documento\": \"12.345\",\n  \"correo\": \"malo\",\n  \"telefono\": \"123\",\n  \"ficha\": \"abc\",\n  \"ciudad\": \"B0g0t4\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdmin}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código de estado 400\", () => pm.response.to.have.status(400));",
+                  "pm.test(\"Responde JSON en menos de 2 s\", () => { pm.response.to.be.json; pm.expect(pm.response.responseTime).to.be.below(2000); });",
+                  "pm.test(\"Mensaje: Datos de aprendiz inválidos\", () => pm.expect(pm.response.json().mensaje).to.include(\"Datos de aprendiz inválidos\"));",
+                  "pm.test(\"Valida caracteres especiales y longitudes\", () => pm.expect(pm.response.json().detalles.length).to.eql(7));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Obtener aprendiz",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/aprendices/{{idAprendiz}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "aprendices",
+                "{{idAprendiz}}"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdmin}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código de estado 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Responde JSON en menos de 2 s\", () => { pm.response.to.be.json; pm.expect(pm.response.responseTime).to.be.below(2000); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Actualizar aprendiz",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/aprendices/{{idAprendiz}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "aprendices",
+                "{{idAprendiz}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombres\": \"Mateo\",\n  \"apellidos\": \"Ríos Cárdenas\",\n  \"documento\": \"{{documentoAprendiz}}\",\n  \"correo\": \"{{correoAprendiz}}\",\n  \"telefono\": \"3110001122\",\n  \"programa\": \"Análisis y Desarrollo de Software\",\n  \"ficha\": \"3336169\",\n  \"ciudad\": \"Bogotá\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdmin}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código de estado 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Responde JSON en menos de 2 s\", () => { pm.response.to.be.json; pm.expect(pm.response.responseTime).to.be.below(2000); });",
+                  "pm.test(\"Mensaje: actualizado correctamente\", () => pm.expect(pm.response.json().mensaje).to.include(\"actualizado correctamente\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Eliminar aprendiz",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/aprendices/{{idAprendiz}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "aprendices",
+                "{{idAprendiz}}"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdmin}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código de estado 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Responde JSON en menos de 2 s\", () => { pm.response.to.be.json; pm.expect(pm.response.responseTime).to.be.below(2000); });",
+                  "pm.test(\"Mensaje: eliminado correctamente\", () => pm.expect(pm.response.json().mensaje).to.include(\"eliminado correctamente\"));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "6. Rutas inexistentes",
+      "item": [
+        {
+          "name": "Ruta que no existe (error)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/no-existe",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "no-existe"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código de estado 404\", () => pm.response.to.have.status(404));",
+                  "pm.test(\"Responde JSON en menos de 2 s\", () => { pm.response.to.be.json; pm.expect(pm.response.responseTime).to.be.below(2000); });",
+                  "pm.test(\"Mensaje: no existe\", () => pm.expect(pm.response.json().mensaje).to.include(\"no existe\"));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000"
+    },
+    {
+      "key": "documentoNuevo",
+      "value": ""
+    },
+    {
+      "key": "correoEmpresa",
+      "value": ""
+    },
+    {
+      "key": "nitRegistro",
+      "value": ""
+    },
+    {
+      "key": "documentoAprendiz",
+      "value": ""
+    },
+    {
+      "key": "correoNuevo",
+      "value": ""
+    },
+    {
+      "key": "tokenAprendiz",
+      "value": ""
+    },
+    {
+      "key": "tokenEmpresa",
+      "value": ""
+    },
+    {
+      "key": "tokenAdmin",
+      "value": ""
+    },
+    {
+      "key": "idOferta",
+      "value": ""
+    },
+    {
+      "key": "idPostulacion",
+      "value": ""
+    },
+    {
+      "key": "nitNuevo",
+      "value": ""
+    },
+    {
+      "key": "idEmpresa",
+      "value": ""
+    },
+    {
+      "key": "correoAprendiz",
+      "value": ""
+    },
+    {
+      "key": "idAprendiz",
+      "value": ""
+    }
+  ]
+}

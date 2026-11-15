@@ -1,0 +1,24 @@
+{
+  "name": "pasantix-backend",
+  "version": "1.0.0",
+  "description": "API REST de Pasantix: conecta aprendices SENA con ofertas de etapa productiva.",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "db:init": "node src/utils/inicializarBD.js"
+  },
+  "author": "Iván Antonio Ovalle Barajas",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "cors": "^2.8.6",
+    "dotenv": "^18.0.9",
+    "express": "^4.22.3",
+    "jsonwebtoken": "^9.0.3",
+    "mysql2": "^3.24.6"
+  }
+}
