@@ -1,0 +1,57 @@
+/* Estilos del módulo Java de Pasantix (misma identidad visual del frontend React) */
+:root {
+    --fondo: #050f2e;
+    --panel: rgba(9, 28, 78, 0.65);
+    --borde: rgba(84, 214, 240, 0.45);
+    --borde-suave: rgba(140, 180, 255, 0.18);
+    --cian: #3fd8f2;
+    --oro: #f1c45e;
+    --oro-oscuro: #c8932c;
+    --texto: #eaf2ff;
+    --tenue: #9fb3d9;
+    --rojo: #ff6b6b;
+    --verde: #4fd58e;
+}
+* { box-sizing: border-box; }
+body {
+    margin: 0; font-family: "Poppins", "Segoe UI", system-ui, sans-serif; color: var(--texto);
+    background:
+        radial-gradient(900px 520px at 85% 8%, rgba(193, 150, 62, 0.20), transparent 60%),
+        radial-gradient(1000px 700px at 10% 20%, rgba(18, 104, 160, 0.40), transparent 60%),
+        linear-gradient(160deg, #061537 0%, #050f2e 55%, #040b22 100%);
+    background-repeat: no-repeat; background-color: #040b22; min-height: 100vh;
+}
+a { color: var(--cian); }
+.acento { color: var(--cian); }
+.barra { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;
+    padding: 10px 24px; background: rgba(4, 12, 38, 0.85); border-bottom: 1px solid var(--borde-suave); }
+.barra nav a { color: #d6e3ff; text-decoration: none; margin-left: 18px; }
+.marca img { height: 46px; display: block; }
+.contenedor { max-width: 1100px; margin: 0 auto; padding: 28px 16px; }
+.tarjeta { background: var(--panel); border: 1.5px solid var(--borde); border-radius: 14px; padding: 22px;
+    box-shadow: 0 0 22px rgba(63, 216, 242, 0.15); }
+.portada { text-align: center; }
+.portada img { width: min(380px, 80vw); }
+.tenue { color: var(--tenue); font-size: .9rem; }
+.acciones { display: flex; gap: 10px; margin-top: 16px; flex-wrap: wrap; justify-content: center; }
+.boton { display: inline-block; border: 0; border-radius: 999px; padding: 10px 20px; cursor: pointer; text-decoration: none;
+    font: inherit; font-weight: 700; font-size: .92rem; background: linear-gradient(180deg, #f7d27a, var(--oro-oscuro)); color: #1c1403; }
+.boton.secundario { background: transparent; color: var(--cian); border: 1.5px solid var(--borde); }
+.boton.peligro { background: transparent; color: var(--rojo); border: 1.5px solid rgba(255, 107, 107, .55); }
+.boton.pequeno { padding: 5px 12px; font-size: .82rem; }
+.busqueda { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 16px; }
+.busqueda input { min-width: 240px; }
+input { font: inherit; color: var(--texto); background: rgba(3, 12, 40, .75); border: 1.5px solid var(--borde);
+    border-radius: 999px; padding: 9px 14px; }
+input:focus { outline: none; border-color: var(--cian); box-shadow: 0 0 0 3px rgba(63, 216, 242, .18); }
+.tabla-desplazable { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; }
+th, td { padding: 10px; border-bottom: 1px solid var(--borde-suave); text-align: left; font-size: .9rem; }
+th { color: var(--cian); font-size: .78rem; text-transform: uppercase; letter-spacing: .4px; }
+.acciones-fila { display: flex; gap: 6px; }
+.acciones-fila form { margin: 0; }
+.formulario { display: grid; gap: 6px; max-width: 520px; margin: 0 auto; }
+.formulario label { font-weight: 600; margin-top: 8px; font-size: .9rem; }
+.alerta { padding: 12px 16px; border-radius: 10px; margin-bottom: 16px; }
+.alerta.exito { background: rgba(79, 213, 142, .12); border: 1px solid rgba(79, 213, 142, .5); }
+.alerta.error { background: rgba(255, 107, 107, .12); border: 1px solid rgba(255, 107, 107, .5); }
