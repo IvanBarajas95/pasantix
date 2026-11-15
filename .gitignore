@@ -1,0 +1,14 @@
+# Dependencias
+node_modules/
+# Variables de entorno (contienen contraseñas y claves)
+.env
+# Compilados
+dist/
+target/
+# Sistema operativo / editores
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+nb-configuration.xml
+*.log
